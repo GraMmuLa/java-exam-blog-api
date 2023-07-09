@@ -15,7 +15,6 @@ public class UserDto {
     public User toUser() {
         User user = new User();
 
-        user.setId(id);
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(password);

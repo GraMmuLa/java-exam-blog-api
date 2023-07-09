@@ -19,7 +19,7 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
 
     private static final String ADMIN_ENDPOINT = "api/admin/**";
-    private static final String LOGIN_ENDPOINT = "/api/auth";
+    private static final String LOGIN_ENDPOINT = "/api/auth/**";
 
     @Autowired
     public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
