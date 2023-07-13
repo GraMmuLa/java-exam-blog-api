@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class UserService {
+public class UserService implements ApiService<User> {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PostRepository postRepository;
@@ -32,7 +32,8 @@ public class UserService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public User register(User user) {
+    @Override
+    public User save(User user) {
         Role roleForUser = roleRepository.findByName("USER").orElse(null);
 
         List<Role> userRoles = new ArrayList<>();
@@ -47,6 +48,7 @@ public class UserService {
         return savedUser;
     }
 
+    @Override
     public List<User> getAll() {
         List<User> allUsers = userRepository.findAll();
         log.info("INF: getAll - found {} users", allUsers.size());
@@ -64,6 +66,7 @@ public class UserService {
         return foundUser;
     }
 
+    @Override
     public User findById(Long id) {
        User foundUser = userRepository.findById(id).orElse(null);
 
@@ -75,6 +78,7 @@ public class UserService {
         return foundUser;
     }
 
+    @Override
     public void delete(User user) {
         userRepository.delete(user);
 

@@ -1,5 +1,6 @@
 package com.example.javaexamblogapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,6 +24,7 @@ public class Role {
     @Column(name="created_at", nullable = false)
     private Timestamp created_at;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "users_roles",
     joinColumns = @JoinColumn(name="role_id"),
