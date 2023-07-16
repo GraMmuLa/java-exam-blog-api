@@ -15,6 +15,7 @@ import com.example.javaexamblogapi.service.PostService;
 import com.example.javaexamblogapi.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.core.RepositoryCreationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,17 +36,15 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
-    private final PostService postService;
 
     @Autowired
     public AuthController(PostService postService, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
-        this.postService = postService;
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = "*")
     @PostMapping(value = "/api/auth/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody AuthenticationRequestDto entity) {
         try {
@@ -68,14 +68,14 @@ public class AuthController {
         }
     }
 
-    @CrossOrigin(origins = "*", exposedHeaders = {"Access-Control-Allow-Origin"})
+    @CrossOrigin(origins = "*")
     @GetMapping("/api/auth/checkToken")
     public ResponseEntity<Map<String, Object>> checkToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
-        String trimmedToken = token.substring(7);
+        String resolvedToken = token.substring(7);
         Map<String, Object> response = new HashMap<>();
 
-        if(jwtTokenProvider.validateToken(trimmedToken)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(trimmedToken);
+        if(jwtTokenProvider.validateToken(resolvedToken)) {
+            Authentication authentication = jwtTokenProvider.getAuthentication(resolvedToken);
 
             User user = userService.findByUsername(authentication.getName());
 
@@ -112,7 +112,12 @@ public class AuthController {
             response.put("token", token);
 
             return ResponseEntity.ok(response);
-        } catch (AuthenticationException e) {
+
+        } catch (AuthenticationException | RepositoryCreationException e) {
+
+            if(e instanceof RepositoryCreationException)
+                return ResponseEntity.badRequest().build();
+
             throw new BadCredentialsException("Invalid data");
         }
     }

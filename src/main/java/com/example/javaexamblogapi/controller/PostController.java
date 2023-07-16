@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class PostController {
@@ -20,20 +18,17 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping("api/post/fetch}")
-    public ResponseEntity<Map<String, List<Post>>> fetchPosts(
+    @CrossOrigin(origins = "*")
+    @GetMapping("api/post/fetch")
+    public ResponseEntity<List<Post>> fetchPosts(
             @RequestParam(name = "from", required = false) Integer from,
             @RequestParam(name="limit", required = false) Integer limit) {
 
         List<Post> resultList = postService.getAll();
         if(from != null && limit != null)
-            resultList = resultList.subList(from, limit);
+            resultList = resultList.subList(from, (limit < resultList.size() ? limit : resultList.size()));
 
-        Map<String, List<Post>> result = new HashMap<>();
-        result.put("posts", resultList);
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(resultList);
     }
-
 
 }

@@ -1,6 +1,5 @@
 package com.example.javaexamblogapi.controller;
 
-import com.example.javaexamblogapi.dto.AuthenticationRequestDto;
 import com.example.javaexamblogapi.dto.PostDto;
 import com.example.javaexamblogapi.dto.PostRequestDto;
 import com.example.javaexamblogapi.dto.UserDto;
@@ -9,7 +8,6 @@ import com.example.javaexamblogapi.model.User;
 import com.example.javaexamblogapi.service.PostService;
 import com.example.javaexamblogapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +26,7 @@ public class AdminController {
     }
 
     @CrossOrigin(origins = "*")
-    @GetMapping(value = "/api/admin/user/{id}")
+    @GetMapping(path = "/api/admin/user/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable(name = "id") Long id) {
         User foundUser = userService.findById(id);
 
@@ -37,23 +35,21 @@ public class AdminController {
 
         UserDto result = UserDto.fromEntity(foundUser);
 
-        ResponseEntity<UserDto> entity = new ResponseEntity<>(result, HttpStatus.OK);
-        return entity;
+        return ResponseEntity.ok(result);
     }
 
     @CrossOrigin(origins = "*")
-    @PostMapping( value="/api/admin/post/add/{userId}")
-    public ResponseEntity addPost(@RequestBody PostRequestDto postRequestDto, @PathVariable(name="userId") Long userId) {
+    @PostMapping( "/api/admin/post/add/{userId}")
+    public ResponseEntity<Post> addPost(@RequestBody PostRequestDto postRequestDto, @PathVariable(name="userId") Long userId) {
         PostDto postDto = PostDto.fromEntity(postRequestDto);
 
-        Post result = postDto.toEntity();
+        Post postEntity = postDto.toEntity();
 
-        postService.save(result);
+        postEntity.setUser(userService.findById(userId));
 
-        System.out.println(userId);
+        Post result = postService.save(postEntity);
 
-        ResponseEntity entity = new ResponseEntity<>(HttpStatus.OK);
-        return entity;
+        return ResponseEntity.ok(result);
     }
 
 }

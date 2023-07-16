@@ -2,8 +2,10 @@ package com.example.javaexamblogapi.config;
 
 import com.example.javaexamblogapi.security.jwt.JwtTokenFilter;
 import com.example.javaexamblogapi.security.jwt.JwtTokenProvider;
+import org.hibernate.annotations.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -22,6 +24,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     private static final String ADMIN_ENDPOINT = "/api/admin/**";
     private static final String LOGIN_ENDPOINT = "/api/auth/**";
+    private static final String POSTS_ENDPOINT = "/api/post/**";
 
     @Autowired
     public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
@@ -38,9 +41,10 @@ public class SecurityConfig implements WebMvcConfigurer {
         http
                 .csrf(x->x.disable())
                 .sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests( x-> {
+                .authorizeHttpRequests( x -> {
                     x.requestMatchers(LOGIN_ENDPOINT).permitAll()
-                    .requestMatchers(ADMIN_ENDPOINT).hasAuthority("ADMIN")
+                    .requestMatchers(POSTS_ENDPOINT).permitAll()
+                    .requestMatchers(ADMIN_ENDPOINT).permitAll()
                     .anyRequest().authenticated();
                 });
 
@@ -52,18 +56,5 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public JwtTokenFilter jwtTokenFilter() {
         return new JwtTokenFilter(jwtTokenProvider);
-    }
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedHeaders("*");
-            }
-        };
     }
 }

@@ -17,10 +17,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name="username", length = 64, nullable = false)
+    @Column(name="username", length = 64, nullable = false, unique = true)
     private String username;
 
-    @Column(name="email", length = 64, nullable = false)
+    @Column(name="email", length = 64, nullable = false, unique = true)
     private String email;
 
     @Column(name="password", length = 64, nullable = false)
@@ -31,7 +31,7 @@ public class User {
     private Timestamp created_at;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Post> posts;
 
     @JsonIgnore
